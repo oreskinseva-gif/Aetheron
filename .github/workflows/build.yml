@@ -26,6 +26,7 @@ jobs:
 
       - name: Extract sources
         run: |
+          cat source_parts/* > Aetheron-src.tar.gz
           mkdir -p src-project
           tar xzf Aetheron-src.tar.gz -C src-project
 
