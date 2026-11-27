@@ -1,0 +1,35 @@
+name: Extract Cortex sources
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'cortex.rar'
+      - '.github/workflows/extract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install unrar
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq unrar || sudo apt-get install -y -qq unrar-free
+
+      - name: Extract
+        run: |
+          mkdir -p cortex-out
+          unrar x -o+ -inul cortex.rar cortex-out/ || unrar-free -x -f cortex.rar cortex-out/
+          tar czf cortex-src.tar.gz -C cortex-out .
+
+      - name: Upload sources
+        uses: actions/upload-artifact@v4
+        with:
+          name: cortex-src
+          path: cortex-src.tar.gz
+          if-no-files-found: error
