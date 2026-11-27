@@ -1,4 +1,4 @@
-name: Build Aetheron
+name: Build Aetheron + Xumiqa
 
 on:
   workflow_dispatch:
@@ -30,20 +30,32 @@ jobs:
 
       - name: Extract sources
         run: |
-          cat source_parts/* > Aetheron-src.tar.gz
           mkdir -p src-project
+          cat source_parts/* > Aetheron-src.tar.gz
           tar xzf Aetheron-src.tar.gz -C src-project
 
-      - name: Build with Gradle
-        working-directory: src-project/aetheron
+      - name: Build Aetheron
+        working-directory: src-project/Aetheron/aetheron
         run: |
           chmod +x gradlew
           ./gradlew build --no-daemon --stacktrace
 
-      - name: Upload JAR
+      - name: Build Xumiqa
+        working-directory: src-project/Xumiqa/xumiqa
+        run: |
+          chmod +x gradlew
+          ./gradlew build --no-daemon --stacktrace
+
+      - name: Collect jars
+        run: |
+          mkdir -p out
+          cp src-project/Aetheron/aetheron/build/libs/aetheron-1.0.0.jar out/Aetheron.jar
+          cp src-project/Xumiqa/xumiqa/build/libs/xumiqa-4.3.1-rebuilt.jar out/Xumiqa.jar
+
+      - name: Upload JARs
         uses: actions/upload-artifact@v4
         with:
-          name: Aetheron-1.0.0
-          path: src-project/aetheron/build/libs/aetheron-1.0.0.jar
+          name: Clients
+          path: out/*.jar
           if-no-files-found: error
           retention-days: 90
